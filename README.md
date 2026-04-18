@@ -8,22 +8,25 @@ BugHound is a small, agent-style debugging tool. It analyzes a Python code snipp
 
 Given a short Python snippet, BugHound:
 
-1. **Analyzes** the code for potential issues  
-   - Uses heuristics in offline mode  
-   - Uses Gemini when API access is enabled  
+1. **Analyzes** the code for potential issues
 
-2. **Proposes a fix**  
-   - Either heuristic-based or LLM-generated  
-   - Attempts minimal, behavior-preserving changes  
+   - Uses heuristics in offline mode
+   - Uses Gemini when API access is enabled
 
-3. **Assesses risk**  
-   - Scores the fix  
-   - Flags high-risk changes  
-   - Decides whether the fix should be auto-applied or reviewed by a human  
+2. **Proposes a fix**
 
-4. **Shows its work**  
-   - Displays detected issues  
-   - Shows a diff between original and fixed code  
+   - Either heuristic-based or LLM-generated
+   - Attempts minimal, behavior-preserving changes
+
+3. **Assesses risk**
+
+   - Scores the fix
+   - Flags high-risk changes
+   - Decides whether the fix should be auto-applied or reviewed by a human
+
+4. **Shows its work**
+   - Displays detected issues
+   - Shows a diff between original and fixed code
    - Logs each agent step
 
 ---
@@ -57,7 +60,7 @@ streamlit run bughound_app.py
 
 In the sidebar, select:
 
-* **Model mode:** Heuristic only (no API)
+- **Model mode:** Heuristic only (no API)
 
 This mode uses simple pattern-based rules and is useful for testing the workflow without network access.
 
@@ -87,8 +90,8 @@ streamlit run bughound_app.py
 
 In the sidebar, select:
 
-* **Model mode:** Gemini (requires API key)
-* Choose a Gemini model and temperature
+- **Model mode:** Gemini (requires API key)
+- Choose a Gemini model and temperature
 
 BugHound will now use Gemini for analysis and fix generation, while still applying local reliability checks.
 
@@ -104,6 +107,10 @@ pytest
 
 You should see tests covering:
 
-* Risk scoring and guardrails
-* Heuristic fallbacks when LLM output is invalid
-* End-to-end agent workflow shape
+- Risk scoring and guardrails
+- Heuristic fallbacks when LLM output is invalid
+- End-to-end agent workflow shape
+
+## TF Submission: Justin Dingeman
+
+- Students might get confused when copying and pasting the code and running the application in offline mode. The questions in Part 1 don't really make sense for using in Heuristic mode, particularly the last question: "What happens when the agent produces a result that feels incomplete or questionable?" This is a really strange question. What exactly does "What happens..." mean? Nothing happens, particularly in Heuristic mode. The code just runs and finishes.
