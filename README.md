@@ -113,4 +113,16 @@ You should see tests covering:
 
 ## TF Submission: Justin Dingeman
 
-- Students might get confused when copying and pasting the code and running the application in offline mode. The questions in Part 1 don't really make sense for using in Heuristic mode, particularly the last question: "What happens when the agent produces a result that feels incomplete or questionable?" This is a really strange question. What exactly does "What happens..." mean? Nothing happens, particularly in Heuristic mode. The code just runs and finishes.
+1. The core concepts the students needed to understand
+> Students should understand the difference between using a heuristic, or otherwise somewhat "hard-coded" model vs using LLM output as the analyzer and fixer for buggy code. They should understand how the LLM's output should be structured, and how it affects the correctness/useability of the application if the LLM doesn't follow instructions.
+
+2. Where students are most likely to struggle
+> Students might get confused when copying and pasting the code and running the application in offline mode. The questions in Part 1 don't really make sense for using in Heuristic mode, particularly the last question: "What happens when the agent produces a result that feels incomplete or questionable?" This is a really strange question. What exactly does "What happens..." mean? Nothing happens, particularly in Heuristic mode. The code just runs and finishes. They are likely to struggle in determining how the LLM is useful because it very well could just produce no useable output in their cases if the code is corrected, so it'd always fallback to heuristics mode.
+
+3. Where AI was helpful vs misleading
+> The AI is helpful in identifying bugs in the existing code. It is misleading in that sometimes, I'd need to go through a problem multiple times before it actually identifies the issue.
+
+4. One way they would guide a student without giving the answer
+> This project could end up turning into a pretty open book of issues. I think that if they are struggling with something, my first instinct would be to have them follow the code to see if they understand where things are going wrong. Once they identify the spot, I'll ask them if they can see why it might not be working, and if they can think of any way to get the code to work.
+
+_Submission Note_: I was not able to fully complete the Tinker within the 2 hours. I am submitting as far as I got, with some additions to the debug code.

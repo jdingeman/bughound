@@ -1,8 +1,15 @@
 import json
 import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from reliability.risk_assessor import assess_risk
+
+_PROMPTS_DIR = Path(__file__).parent / "prompts"
+
+
+def _load_prompt(filename: str) -> str:
+    return (_PROMPTS_DIR / filename).read_text(encoding="utf-8")
 
 
 class BugHoundAgent:
@@ -20,12 +27,14 @@ class BugHoundAgent:
         # client should implement: complete(system_prompt: str, user_prompt: str) -> str
         self.client = client
         self.logs: List[Dict[str, str]] = []
+        self.llm_responses: Dict[str, str] = {}
 
     # ----------------------------
     # Public API
     # ----------------------------
     def run(self, code_snippet: str) -> Dict[str, Any]:
         self.logs = []
+        self.llm_responses = {}
         self._log("PLAN", "Planning a quick scan + fix proposal workflow.")
 
         issues = self.analyze(code_snippet)
@@ -48,6 +57,7 @@ class BugHoundAgent:
             "fixed_code": fixed_code,
             "risk": risk,
             "logs": self.logs,
+            "llm_responses": self.llm_responses,
         }
 
     # ----------------------------
@@ -59,15 +69,8 @@ class BugHoundAgent:
             return self._heuristic_analyze(code_snippet)
 
         self._log("ANALYZE", "Using LLM analyzer.")
-        system_prompt = (
-            "You are BugHound, a code review assistant. "
-            "Return ONLY valid JSON. No markdown, no backticks."
-        )
-        user_prompt = (
-            "Analyze this Python code for potential issues. "
-            "Return a JSON array of issue objects with keys: type, severity, msg.\n\n"
-            f"CODE:\n{code_snippet}"
-        )
+        system_prompt = _load_prompt("analyzer_system.txt")
+        user_prompt = _load_prompt("analyzer_user.txt").replace("{{CODE}}", code_snippet)
 
         # UPDATED: Added exception handling for API errors/rate limits
         try:
@@ -76,6 +79,7 @@ class BugHoundAgent:
             self._log("ANALYZE", f"API Error: {str(e)}. Falling back to heuristics.")
             return self._heuristic_analyze(code_snippet)
 
+        self.llm_responses["analyzer"] = raw
         issues = self._parse_json_array_of_issues(raw)
 
         if issues is None:
@@ -94,15 +98,11 @@ class BugHoundAgent:
             return self._heuristic_fix(code_snippet, issues)
 
         self._log("ACT", "Using LLM fixer.")
-        system_prompt = (
-            "You are BugHound, a careful refactoring assistant. "
-            "Return ONLY the full rewritten Python code. No markdown, no backticks."
-        )
+        system_prompt = _load_prompt("fixer_system.txt")
         user_prompt = (
-            "Rewrite the code to address the issues listed. "
-            "Preserve behavior when possible. Keep changes minimal.\n\n"
-            f"ISSUES (JSON):\n{json.dumps(issues)}\n\n"
-            f"CODE:\n{code_snippet}"
+            _load_prompt("fixer_user.txt")
+            .replace("{{ISSUES}}", json.dumps(issues))
+            .replace("{{CODE}}", code_snippet)
         )
 
         # UPDATED: Added exception handling for API errors/rate limits
@@ -112,6 +112,7 @@ class BugHoundAgent:
             self._log("ACT", f"API Error: {str(e)}. Falling back to heuristic fixer.")
             return self._heuristic_fix(code_snippet, issues)
 
+        self.llm_responses["fixer"] = raw
         cleaned = self._strip_code_fences(raw).strip()
 
         if not cleaned:
